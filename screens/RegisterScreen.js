@@ -9,7 +9,8 @@ import { useNavigation } from '@react-navigation/native'
 
 import {auth, db} from '../firebase'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-import {doc, getDoc} from 'firebase/firestore'
+import {doc, setDoc} from 'firebase/firestore'
+
 
 
 const RegisterScreen = () => {
@@ -35,6 +36,24 @@ const RegisterScreen = () => {
                 {cancelable: false}
             )
         }
+
+        createUserWithEmailAndPassword(auth,credential.email,credential.password).then(async (userCredential) => {
+            const user = userCredential.user;
+            const myUserUid = user.uid;
+
+            const userRef = doc(db, 'users', myUserUid)
+            const userData = {
+                email: user.email,
+                phone: credential.phone
+            }
+    
+            await setDoc(userRef, userData).then(() => console.log('Firestore successfully updated!')).catch((err) => console.log('Error updating firestore: ', err))
+
+            console.log('🤭 successful')
+          }).catch((err) => {
+            console.error(err)
+        })
+
     }
 
     const navigation = useNavigation()
